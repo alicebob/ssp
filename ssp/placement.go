@@ -2,12 +2,10 @@ package ssp
 
 // basic banner for now
 type Placement struct {
-	ID       string
-	Name     string
-	ImgURL   string
-	ClickURL string
-	Width    int
-	Height   int
+	ID   string
+	Name string
+	// Width    int
+	// Height   int
 }
 
 func (p Placement) Embed() string {

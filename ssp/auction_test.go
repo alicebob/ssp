@@ -6,15 +6,12 @@ import (
 
 func TestAuction(t *testing.T) {
 	pl := Placement{
-		ID:       "pl1",
-		ImgURL:   "https://site.example/image.jpg",
-		ClickURL: "https://site.example/clicked.cgi",
+		ID: "pl1",
 	}
 	a := NewAuction()
 	a.UserAgent = "mozilla 1.2.3"
 	a.IP = "1.2.3.4"
 	a.PlacementID = pl.ID
-	a.ClickURL = pl.ClickURL
 	html := pl.HTML(a.ID)
 	if html == "" {
 		t.Fatalf("empty html")
