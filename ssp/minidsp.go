@@ -17,16 +17,20 @@ func RunDSP(id, name string) (*DSP, *httptest.Server) {
 		ID:   id,
 		Name: name,
 	}
-	r := httprouter.New()
-	r.POST("/rtb", rtbHandler(id))
-	s := httptest.NewServer(r)
+	s := httptest.NewServer(Mux())
 	dsp.BidURL = s.URL + "/rtb"
 	return dsp, s
 }
 
-func rtbHandler(id string) httprouter.Handle {
+func Mux() *httprouter.Router {
+	r := httprouter.New()
+	r.POST("/rtb", rtbHandler())
+	return r
+}
+
+func rtbHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		log.Printf("RTB request for %s", id)
+		log.Printf("RTB request")
 		var req RTBBidRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			log.Printf("req: %s", err)
@@ -36,7 +40,7 @@ func rtbHandler(id string) httprouter.Handle {
 
 		// log.Printf("RTB request for %s: %#v", id, req)
 		if len(req.Impressions) == 0 {
-			log.Printf("no impressions for %s", id)
+			log.Printf("no impressions")
 			w.WriteHeader(204)
 			fmt.Fprintf(w, "{}")
 			return
@@ -53,7 +57,9 @@ func rtbHandler(id string) httprouter.Handle {
 							ID:           "1",
 							ImpressionID: imp.ID,
 							Price:        0.42,
-							ImageURL:     "https://imgs.xkcd.com/s/a899e84.jpg",
+							AdMarkup: `
+<a href="https://xkcd.com?clicked"><img src="https://imgs.xkcd.com/s/a899e84.jpg"></a>
+`,
 						},
 					},
 				},

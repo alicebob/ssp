@@ -29,6 +29,8 @@ func (d *Daemon) RunAuction(pl *ssp.Placement) *ssp.Auction {
 	a.UserAgent = "chromium 4.5.6"
 	a.IP = "5.6.7.8"
 	a.PlacementID = pl.ID
+	a.Width = pl.Width
+	a.Height = pl.Height
 
 	// TODO: store auction
 
@@ -42,6 +44,9 @@ func (d *Daemon) RunAuction(pl *ssp.Placement) *ssp.Auction {
 	}
 	log.Printf("winning bid: %s: %f", won.SSPID, won.PriceCPM)
 	// TODO: update auction
+	a.PriceCPM = won.PriceCPM
+	a.NotificationURL = won.NotificationURL
+	a.AdMarkup = won.AdMarkup
 	return a
 }
 

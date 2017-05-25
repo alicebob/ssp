@@ -2,15 +2,18 @@ package ssp
 
 // TODO: lock
 type Auction struct {
-	ID          string
-	PlacementID string
-	UserAgent   string
-	IP          string
-	ClickURL    string
-	WinURL      string
-	Wins        int
-	Views       int
-	Clicks      int
+	ID              string
+	PlacementID     string
+	UserAgent       string
+	IP              string
+	PriceCPM        float64
+	AdMarkup        string
+	NotificationURL string
+	WinURL          string
+	Width, Height   int
+	Wins            int
+	Views           int
+	Clicks          int
 }
 
 func NewAuction() *Auction {

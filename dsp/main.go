@@ -2,14 +2,14 @@ package main
 
 import (
 	"log"
+	"net/http"
 
 	"github.com/alicebob/ssp/ssp"
 )
 
+const listen = "localhost:9990"
+
 func main() {
-	dsp, s := ssp.RunDSP("dsp1", "My DSP")
-	defer s.Close()
-	log.Printf("BidURL: %s", dsp.BidURL)
-	for {
-	}
+	log.Printf("BidURL: http://%s/rtb", listen)
+	log.Fatal(http.ListenAndServe(listen, ssp.Mux()))
 }

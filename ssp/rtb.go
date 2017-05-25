@@ -31,9 +31,6 @@ type RTBBid struct {
 	ID              string  `json:"id,omitempty"`
 	ImpressionID    string  `json:"impid,omitempty"`
 	Price           float64 `json:"price,omitempty"`
+	AdMarkup        string  `json:"adm,omitempty"`
 	NotificationURL string  `json:"nurl,omitempty"`
-	ImageURL        string  `json:"iurl,omitempty"`
-	CreativeID      string  `json:"crid,omitempty"`
-	Height          int     `json:"h,omitempty"`
-	Width           int     `json:"w,omitempty"`
 }

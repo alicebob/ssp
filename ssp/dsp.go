@@ -26,8 +26,8 @@ func (d *DSP) Bid(ctx context.Context, a *Auction) ([]Bid, error) {
 			{
 				ID: "1",
 				Banner: &RTBBanner{
-					Width:  520,
-					Height: 100,
+					Width:  a.Width,
+					Height: a.Height,
 				},
 			},
 		},
@@ -73,9 +73,10 @@ func (d *DSP) Bid(ctx context.Context, a *Auction) ([]Bid, error) {
 	b := bid.Seatbids[0].Bids[0] // TODO
 	return []Bid{
 		{
-			PriceCPM: b.Price,
-			ImageURL: b.ImageURL,
-			// ClickURL: b.ClickURL,
+			SSPID:           d.ID,
+			PriceCPM:        b.Price,
+			AdMarkup:        b.AdMarkup,
+			NotificationURL: b.NotificationURL,
 		},
 	}, nil
 }

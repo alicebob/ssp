@@ -16,20 +16,19 @@ func main() {
 		{
 			ID:     "dsp1",
 			Name:   "Test 1",
-			BidURL: "http://localhost:34125/rtb",
+			BidURL: "http://localhost:9990/rtb",
 		},
 		{
 			ID:     "dsp2",
-			Name:   "Test 2",
+			Name:   "Test 2 - offline",
 			BidURL: "http://localhost:9999/...",
 		},
 	}
 	pl1 := ssp.Placement{
-		ID:   "my_website_1",
-		Name: "My Website",
-		// Type:   ssp.PlainBanner,
-		// Width:  400,
-		// Height: 200,
+		ID:     "my_website_1",
+		Name:   "My Website",
+		Width:  520,
+		Height: 100,
 	}
 
 	s := NewDaemon(dsps)
