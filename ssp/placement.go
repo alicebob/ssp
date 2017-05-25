@@ -8,7 +8,7 @@ type Placement struct {
 	// Height   int
 }
 
-func (p Placement) Embed() string {
+func (p Placement) Code() string {
 	return `
 <div id="banner123" style="width:520px;height:100px"></div>
 <script src="{{.Base}}embed.js"></script>
@@ -16,7 +16,7 @@ func (p Placement) Embed() string {
 `
 }
 
-func (p Placement) HTML(auctionID string) string {
+func (p Placement) Embed(auctionID string) string {
 	return `
 function sspRun(base) {
 	var wrap = document.createElement("div");
