@@ -11,7 +11,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-// RunDSP returns a http server you need to close when done
+// RunDSP returns a http server you need to Close() when done
 func RunDSP(id, name string) (*DSP, *httptest.Server) {
 	dsp := &DSP{
 		ID:   id,

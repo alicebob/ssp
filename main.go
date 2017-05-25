@@ -16,7 +16,7 @@ func main() {
 		{
 			ID:     "dsp1",
 			Name:   "Test 1",
-			BidURL: "http://localhost:999/...",
+			BidURL: "http://localhost:34125/rtb",
 		},
 		{
 			ID:     "dsp2",

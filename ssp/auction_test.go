@@ -12,7 +12,7 @@ func TestAuction(t *testing.T) {
 	a.UserAgent = "mozilla 1.2.3"
 	a.IP = "1.2.3.4"
 	a.PlacementID = pl.ID
-	html := pl.HTML(a.ID)
+	html := pl.Embed(a.ID)
 	if html == "" {
 		t.Fatalf("empty html")
 	}
