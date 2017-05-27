@@ -47,6 +47,7 @@ func (d *Daemon) RunAuction(pl *ssp.Placement) *ssp.Auction {
 	a.PriceCPM = won.PriceCPM
 	a.NotificationURL = won.NotificationURL
 	a.AdMarkup = won.AdMarkup
+	a.Won()
 	return a
 }
 

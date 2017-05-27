@@ -5,18 +5,56 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
+	"strconv"
+	"sync"
 
 	"github.com/julienschmidt/httprouter"
 )
 
-func Mux(cs []Campaign) *httprouter.Router {
+type DSP struct {
+	BaseURL   string
+	BidURL    string
+	server    *http.Server
+	campaigns []Campaign
+	wonCount  int
+	wonCPM    float64
+	mu        sync.Mutex
+}
+
+func NewDSP(listen string, cs []Campaign) *DSP {
+	l, err := net.Listen("tcp", listen)
+	if err != nil {
+		panic(err.Error())
+	}
+	port := l.Addr().(*net.TCPAddr).Port
+	base := fmt.Sprintf("http://localhost:%d/", port)
+	d := &DSP{
+		BaseURL:   base,
+		BidURL:    fmt.Sprintf("%srtb", base),
+		campaigns: cs,
+	}
+	d.server = &http.Server{
+		Addr:    listen,
+		Handler: d.Mux(),
+	}
+	go d.server.Serve(l)
+	return d
+}
+
+func (dsp *DSP) Close() error {
+	return dsp.server.Close()
+}
+
+func (dsp *DSP) Mux() *httprouter.Router {
 	r := httprouter.New()
-	r.POST("/rtb", rtbHandler(cs))
+	r.POST("/rtb", dsp.rtbHandler())
+	r.GET("/win", dsp.winHandler())
 	return r
 }
 
-func rtbHandler(cs []Campaign) httprouter.Handle {
+func (dsp *DSP) rtbHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		log.Printf("RTB request")
 		var req RTBBidRequest
@@ -29,7 +67,7 @@ func rtbHandler(cs []Campaign) httprouter.Handle {
 		// log.Printf("RTB request: %#v", req)
 		var bids []RTBBid
 		for _, imp := range req.Impressions {
-			bids = append(bids, makeBid(imp, cs)...)
+			bids = append(bids, dsp.makeBid(imp)...)
 		}
 		if len(bids) == 0 {
 			log.Printf("no bids")
@@ -59,9 +97,9 @@ func rtbHandler(cs []Campaign) httprouter.Handle {
 }
 
 // place a bid on every campaign which matches.
-func makeBid(imp RTBImpression, cs []Campaign) []RTBBid {
+func (dsp *DSP) makeBid(imp RTBImpression) []RTBBid {
 	var bids []RTBBid
-	for _, c := range cs {
+	for _, c := range dsp.campaigns {
 		switch {
 		case imp.Banner != nil:
 			b := imp.Banner
@@ -78,10 +116,43 @@ func makeBid(imp RTBImpression, cs []Campaign) []RTBBid {
 							c.Width,
 							c.Height,
 						),
+						NotificationURL: dsp.winURL(),
 					},
 				)
 			}
 		}
 	}
 	return bids
+}
+func (dsp *DSP) winHandler() httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		pr := r.FormValue("p")
+		if pr == "" {
+			log.Printf("no price")
+			http.Error(w, http.StatusText(400), 400)
+			return
+		}
+		price, err := strconv.ParseFloat(pr, 64)
+		if err != nil {
+			log.Printf("invalid price %q: %s", pr, err)
+			http.Error(w, http.StatusText(400), 400)
+			return
+		}
+		log.Printf("won %f", price)
+		dsp.mu.Lock()
+		defer dsp.mu.Unlock()
+		dsp.wonCount++
+		dsp.wonCPM += price
+	}
+}
+
+func (dsp *DSP) winURL() string {
+	return fmt.Sprintf("%swin?p=${AUCTION_PRICE}", dsp.BaseURL)
+}
+
+// Won returns count+total CPM of winnotices
+func (dsp *DSP) Won() (int, float64) {
+	dsp.mu.Lock()
+	defer dsp.mu.Unlock()
+	return dsp.wonCount, dsp.wonCPM
 }

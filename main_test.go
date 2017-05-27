@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/alicebob/ssp/dsplib"
 	"github.com/alicebob/ssp/ssp"
@@ -57,6 +58,16 @@ func TestMain(t *testing.T) {
 	}
 	if have, want := r, "214px"; !strings.Contains(have, want) {
 		t.Errorf("not found: %q in %q", want, r)
+	}
+	time.Sleep(10 * time.Millisecond)
+	{
+		wonCount, wonCMP := s2.Won()
+		if have, want := wonCount, 1; have != want {
+			t.Errorf("have %v, want %v", have, want)
+		}
+		if have, want := wonCMP, 0.43; have != want {
+			t.Errorf("have %v, want %v", have, want)
+		}
 	}
 
 	getok(t, s, 404, "/p/my_website_1/foo.html")

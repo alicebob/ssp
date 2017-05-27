@@ -1,18 +1,16 @@
 package ssp
 
 import (
-	"net/http/httptest"
-
 	"github.com/alicebob/ssp/dsplib"
 )
 
 // RunDSP returns a http server you need to Close() when done
-func RunDSP(id, name string, campaigns ...dsplib.Campaign) (DSP, *httptest.Server) {
+func RunDSP(id, name string, campaigns ...dsplib.Campaign) (DSP, *dsplib.DSP) {
 	dsp := DSP{
 		ID:   id,
 		Name: name,
 	}
-	s := httptest.NewServer(dsplib.Mux(campaigns))
-	dsp.BidURL = s.URL + "/rtb"
-	return dsp, s
+	o := dsplib.NewDSP("localhost:0", campaigns)
+	dsp.BidURL = o.BidURL // s.URL + "/rtb"
+	return dsp, o
 }

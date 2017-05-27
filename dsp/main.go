@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"net/http"
 
 	"github.com/alicebob/ssp/dsplib"
 )
@@ -31,6 +30,13 @@ var (
 )
 
 func main() {
-	log.Printf("BidURL: http://%s/rtb", listen)
-	log.Fatal(http.ListenAndServe(listen, dsplib.Mux(campaigns)))
+	s := dsplib.NewDSP(listen, campaigns)
+	defer s.Close()
+	log.Printf("configured campaigns:")
+	for _, c := range campaigns {
+		log.Printf(" - %dx%d: %s ($%.2f)", c.Width, c.Height, c.ID, c.BidCPM)
+	}
+	log.Printf("BidURL: %s", s.BidURL)
+	for {
+	}
 }
