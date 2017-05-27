@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -8,7 +9,7 @@ import (
 )
 
 const (
-	listen = ":9998"
+	listen = "localhost:9998"
 )
 
 var (
@@ -37,11 +38,17 @@ var (
 			Width:  300,
 			Height: 330,
 		},
+		ssp.Placement{
+			ID:     "my_website_3",
+			Name:   "My Website 3",
+			Width:  466,
+			Height: 214,
+		},
 	}
 )
 
 func main() {
-	s := NewDaemon(dsps)
+	s := NewDaemon(fmt.Sprintf("http://%s", listen), dsps)
 	log.Printf("listening on %s...", listen)
 	log.Fatal(http.ListenAndServe(listen, mux(s, placements)))
 }

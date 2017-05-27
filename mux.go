@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 
@@ -11,17 +13,25 @@ import (
 
 func mux(d *Daemon, pls []ssp.Placement) *httprouter.Router {
 	r := httprouter.New()
+	r.GET("/", makeList(pls))
 	for _, pl := range pls {
-		r.GET("/p/"+pl.ID+"/code.html", makeCode(pl))
-		// r.GET("/p/"+pl.ID+"/embed.js", makeEmbed(d, &pl))
-		r.GET("/p/"+pl.ID+"/iframe.html", makeIframe(d, &pl))
+		base := "/p/" + pl.ID + "/"
+		r.GET(base+"code.html", makeCode(d.BaseURL+base, pl))
+		r.GET(base+"iframe.html", makeIframe(d, pl))
 	}
 	return r
 }
 
-func makeCode(pl ssp.Placement) httprouter.Handle {
+func makeList(pls []ssp.Placement) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		b, err := pl.Code()
+		w.Header().Set("Content-Type", "text/html")
+		runTemplate(w, listTemplate, pls)
+	}
+}
+
+func makeCode(base string, pl ssp.Placement) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		b, err := pl.Code(base)
 		if err != nil {
 			log.Printf("code: %s", err)
 			http.Error(w, http.StatusText(500), 500)
@@ -32,32 +42,9 @@ func makeCode(pl ssp.Placement) httprouter.Handle {
 	}
 }
 
-/*
-func makeEmbed(d *Daemon, pl *ssp.Placement) httprouter.Handle {
+func makeIframe(d *Daemon, pl ssp.Placement) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		auc := d.RunAuction(pl)
-		if auc == nil {
-			// log.Printf("auction: no result")
-			// http.Error(w, http.StatusText(500), 500)
-			w.Header().Set("Content-Type", "application/javascript")
-			// TODO: print some message in the banner
-			return
-		}
-		b, err := pl.Embed(auc)
-		if err != nil {
-			log.Printf("auction: %s", err)
-			http.Error(w, http.StatusText(500), 500)
-			return
-		}
-		w.Header().Set("Content-Type", "application/javascript")
-		w.Write([]byte(b))
-	}
-}
-*/
-
-func makeIframe(d *Daemon, pl *ssp.Placement) httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		auc := d.RunAuction(pl)
+		auc := d.RunAuction(&pl)
 		if auc == nil {
 			log.Printf("auction: no result")
 			w.Header().Set("Content-Type", "text/html")
@@ -74,3 +61,29 @@ func makeIframe(d *Daemon, pl *ssp.Placement) httprouter.Handle {
 		w.Write([]byte(b))
 	}
 }
+
+func runTemplate(w http.ResponseWriter, t *template.Template, args interface{}) {
+	b := &bytes.Buffer{}
+	if err := t.Execute(b, args); err != nil {
+		log.Printf("template: %s", err)
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+	w.Header().Set("Content-Type", "text/html")
+	if n, err := w.Write(b.Bytes()); err != nil || n != b.Len() {
+		log.Printf("write error (%d/%d): %s", n, b.Len(), err)
+		return
+	}
+}
+
+var listTemplate = template.Must(template.New("list").Parse(`
+<html>
+<title>Placement list</title>
+<body>
+Available placements:
+{{range .}}
+	{{.Name}}<br />
+	- <a href="/p/{{.ID}}/code.html">Embed code</a><br />
+	- <a href="/p/{{.ID}}/iframe.html">Iframe</a><br />
+{{end}}
+`))

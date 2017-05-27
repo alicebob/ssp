@@ -43,30 +43,41 @@ func TestMain(t *testing.T) {
 	dsp2, s2 := ssp.RunDSP("dsp2", "My Second DSP", camp1, camp2)
 	defer s2.Close()
 
-	d := NewDaemon([]ssp.DSP{dsp1, dsp2})
+	d := NewDaemon("http://localhost/", []ssp.DSP{dsp1, dsp2})
 	s := httptest.NewServer(mux(d, []ssp.Placement{pl1}))
 	defer s.Close()
 
-	r := getok(t, s, 200, "/p/my_website_1/code.html")
-	if want := "<iframe"; !strings.Contains(r, want) {
-		t.Errorf("not found: %q", want)
+	{
+		r := getok(t, s, 200, "/")
+		if want := "My Website"; !strings.Contains(r, want) {
+			t.Errorf("not found: %q", want)
+		}
 	}
 
-	r = getok(t, s, 200, "/p/my_website_1/iframe.html")
-	if have, want := r, "debugger.png"; !strings.Contains(have, want) {
-		t.Errorf("not found: %q", want)
-	}
-	if have, want := r, "214px"; !strings.Contains(have, want) {
-		t.Errorf("not found: %q in %q", want, r)
-	}
-	time.Sleep(10 * time.Millisecond)
 	{
-		wonCount, wonCMP := s2.Won()
-		if have, want := wonCount, 1; have != want {
-			t.Errorf("have %v, want %v", have, want)
+		r := getok(t, s, 200, "/p/my_website_1/code.html")
+		if want := "<iframe"; !strings.Contains(r, want) {
+			t.Errorf("not found: %q", want)
 		}
-		if have, want := wonCMP, 0.43; have != want {
-			t.Errorf("have %v, want %v", have, want)
+	}
+
+	{
+		r := getok(t, s, 200, "/p/my_website_1/iframe.html")
+		if have, want := r, "debugger.png"; !strings.Contains(have, want) {
+			t.Errorf("not found: %q", want)
+		}
+		if have, want := r, "214px"; !strings.Contains(have, want) {
+			t.Errorf("not found: %q in %q", want, r)
+		}
+		time.Sleep(10 * time.Millisecond)
+		{
+			wonCount, wonCMP := s2.Won()
+			if have, want := wonCount, 1; have != want {
+				t.Errorf("have %v, want %v", have, want)
+			}
+			if have, want := wonCMP, 0.43; have != want {
+				t.Errorf("have %v, want %v", have, want)
+			}
 		}
 	}
 

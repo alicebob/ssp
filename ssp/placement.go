@@ -13,24 +13,20 @@ type Placement struct {
 	Height int
 }
 
-func (p Placement) Code() (string, error) {
+func (p Placement) Code(base string) (string, error) {
 	b := &bytes.Buffer{}
-	if err := plainCode.Execute(b, p); err != nil {
+	args := struct {
+		Base      string
+		Placement Placement
+	}{
+		Base:      base,
+		Placement: p,
+	}
+	if err := plainCode.Execute(b, args); err != nil {
 		return "", err
 	}
 	return b.String(), nil
 }
-
-/*
-func (p Placement) Embed(au *Auction) (string, error) {
-	b := &bytes.Buffer{}
-	markup := template.JS(oneLine(au.AdMarkup))
-	if err := plainEmbed.Execute(b, au, markup); err != nil {
-		return "", err
-	}
-	return b.String(), nil
-}
-*/
 
 func (p Placement) Iframe(au *Auction) (string, error) {
 	b := &bytes.Buffer{}
@@ -41,24 +37,12 @@ func (p Placement) Iframe(au *Auction) (string, error) {
 	return b.String(), nil
 }
 
-var plainCode = template.Must(template.New("code").Parse(`
-<iframe width="{{.Width}}" height="{{.Height}}" src=".../iframe.html" style="border: 0"></iframe>
+var (
+	plainCode = template.Must(template.New("code").Parse(`
+<iframe src="{{.Base}}iframe.html" style="border: 0; width: {{.Placement.Width}}px; height: {{.Placement.Height}}px"></iframe>
 `))
 
-/*
-var plainEmbed = template.Must(template.New("embed").Parse(`
-function sspRun() {
-	console.log("rendering auction", "{{.AdMarkup}}");
-	var d = document.createElement("div");
-	d.style.width = "{{.Width}}px";
-	d.style.height = "{{.Height}}px";
-	d.innerHTML = "{{.AdMarkup}}";
-	return d;
-}
-`))
-*/
-
-var plainIframe = template.Must(template.New("embed").Parse(`
+	plainIframe = template.Must(template.New("embed").Parse(`
 <html>
 <body style="margin: 0">
 {{.}}
@@ -71,3 +55,4 @@ window.onload = function() {
 }
 </script>
 `))
+)

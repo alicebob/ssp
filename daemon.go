@@ -14,12 +14,14 @@ const (
 )
 
 type Daemon struct {
-	DSPs []ssp.DSP
+	BaseURL string
+	DSPs    []ssp.DSP
 }
 
-func NewDaemon(dsps []ssp.DSP) *Daemon {
+func NewDaemon(base string, dsps []ssp.DSP) *Daemon {
 	return &Daemon{
-		DSPs: dsps,
+		BaseURL: base,
+		DSPs:    dsps,
 	}
 }
 
