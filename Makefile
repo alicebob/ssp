@@ -6,4 +6,5 @@ test:
 	go test
 
 build:
+	go build -i ./...
 	go build -o ./my_first_ssp

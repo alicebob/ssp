@@ -11,8 +11,8 @@ const (
 	listen = ":9998"
 )
 
-func main() {
-	dsps := []ssp.DSP{
+var (
+	dsps = []ssp.DSP{
 		{
 			ID:     "dsp1",
 			Name:   "Test 1",
@@ -24,23 +24,24 @@ func main() {
 			BidURL: "http://localhost:9999/...",
 		},
 	}
-	pl1 := ssp.Placement{
-		ID:     "my_website_1",
-		Name:   "My Website",
-		Width:  520,
-		Height: 100,
+	placements = []ssp.Placement{
+		ssp.Placement{
+			ID:     "my_website_1",
+			Name:   "My Website",
+			Width:  520,
+			Height: 100,
+		},
+		ssp.Placement{
+			ID:     "my_website_2",
+			Name:   "My Website 2",
+			Width:  300,
+			Height: 330,
+		},
 	}
+)
 
+func main() {
 	s := NewDaemon(dsps)
-	// defer s.Close()
-	// s.URLPrefix = "https://ssp.example/ssp"
-
 	log.Printf("listening on %s...", listen)
-	log.Fatal(http.ListenAndServe(listen, mux(s, []ssp.Placement{pl1})))
-
-	// get(s.URL, "/p/my_website_1/code")
-	// get(s.URL, "/p/my_website_1/example")
-	// get(s.URL, "/p/my_website_1/embed.js")
-	// get(s.URL, "/e/AAAA/view")
-	// get(s.URL, "/e/AAAA/click")
+	log.Fatal(http.ListenAndServe(listen, mux(s, placements)))
 }

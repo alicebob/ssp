@@ -1,4 +1,4 @@
-package ssp
+package dsplib
 
 // minimal OpenRTB 2.3
 

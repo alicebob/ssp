@@ -1,39 +1,18 @@
 package ssp
 
-// TODO: lock
 type Auction struct {
 	ID              string
 	PlacementID     string
+	Width, Height   int
 	UserAgent       string
 	IP              string
 	PriceCPM        float64
 	AdMarkup        string
 	NotificationURL string
-	WinURL          string
-	Width, Height   int
-	Wins            int
-	Views           int
-	Clicks          int
 }
 
 func NewAuction() *Auction {
 	return &Auction{
-		ID: "123",
+		ID: "123", // TODO
 	}
-}
-
-func (a *Auction) Win() error {
-	// TODO: call WinURL
-	a.Wins++
-	return nil
-}
-
-func (a *Auction) View() error {
-	a.Views++
-	return nil
-}
-
-func (a *Auction) Click() error {
-	a.Clicks++
-	return nil
 }
