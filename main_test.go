@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -8,7 +10,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/julienschmidt/httprouter"
+
 	"github.com/alicebob/ssp/dsplib"
+	"github.com/alicebob/ssp/openrtb"
 	"github.com/alicebob/ssp/ssp"
 )
 
@@ -85,6 +90,41 @@ func TestMain(t *testing.T) {
 
 	getok(t, s, 404, "/p/my_website_1/foo.html")
 	getok(t, s, 404, "/p/foo/code.html")
+}
+
+func TestRTB(t *testing.T) {
+	var lastReq openrtb.BidRequest
+	r := httprouter.New()
+	r.POST("/rtb", func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		if err := json.NewDecoder(r.Body).Decode(&lastReq); err != nil {
+			http.Error(w, http.StatusText(400), 400)
+			return
+		}
+		w.WriteHeader(204)
+		fmt.Fprintf(w, "{}")
+	})
+	dspS := httptest.NewServer(r)
+	defer dspS.Close()
+	dsp := ssp.DSP{
+		ID:     "dsp1",
+		Name:   "Hello world",
+		BidURL: dspS.URL + "/rtb",
+	}
+
+	d := NewDaemon("http://localhost/", []ssp.DSP{dsp})
+	s := httptest.NewServer(mux(d, []ssp.Placement{pl1}))
+	defer s.Close()
+
+	getok(t, s, 200, "/p/my_website_1/iframe.html")
+	if have, want := len(lastReq.Impressions), 1; have != want {
+		t.Fatalf("have %d, want %d", have, want)
+	}
+	if have, want := lastReq.Device.UserAgent, "Go-http-client/1.1"; have != want {
+		t.Fatalf("have %s, want %s", have, want)
+	}
+	if have, want := lastReq.Device.IP, "127.0.0.1"; have != want {
+		t.Fatalf("have %s, want %s", have, want)
+	}
 }
 
 func getok(t *testing.T, s *httptest.Server, status int, path string) string {

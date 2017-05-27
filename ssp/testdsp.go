@@ -11,6 +11,6 @@ func RunDSP(id, name string, campaigns ...dsplib.Campaign) (DSP, *dsplib.DSP) {
 		Name: name,
 	}
 	o := dsplib.NewDSP("localhost:0", campaigns)
-	dsp.BidURL = o.BidURL // s.URL + "/rtb"
+	dsp.BidURL = o.BidURL
 	return dsp, o
 }

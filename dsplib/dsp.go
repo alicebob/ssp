@@ -10,8 +10,9 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/alicebob/ssp/openrtb"
 	"github.com/julienschmidt/httprouter"
+
+	"github.com/alicebob/ssp/openrtb"
 )
 
 type DSP struct {

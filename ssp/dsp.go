@@ -35,6 +35,10 @@ func (d *DSP) Bid(ctx context.Context, a *Auction) ([]Bid, error) {
 				},
 			},
 		},
+		Device: openrtb.Device{
+			UserAgent: a.UserAgent,
+			IP:        a.IP,
+		},
 	}
 	pl, err := json.Marshal(rtb)
 	if err != nil {

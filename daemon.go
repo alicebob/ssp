@@ -29,7 +29,7 @@ func NewDaemon(base string, dsps []ssp.DSP) *Daemon {
 // RunAuction for a placement. Can take up to $timeout to run.
 func (d *Daemon) RunAuction(pl *ssp.Placement, r *http.Request) *ssp.Auction {
 	a := ssp.NewAuction()
-	a.UserAgent = r.Header.Get("User-Agent")
+	a.UserAgent = r.UserAgent()
 	if addr := r.RemoteAddr; addr != "" {
 		a.IP, _, _ = net.SplitHostPort(addr)
 	}
