@@ -10,6 +10,7 @@ import (
 type Auction struct {
 	ID              string
 	PlacementID     string
+	FloorCPM        float64
 	Width, Height   int
 	UserAgent       string
 	IP              string

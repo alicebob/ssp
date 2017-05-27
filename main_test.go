@@ -30,10 +30,11 @@ var (
 		ClickURL: "https://xkcd.com/386/",
 	}
 	pl1 = ssp.Placement{
-		ID:     "my_website_1",
-		Name:   "My Website",
-		Width:  466,
-		Height: 214,
+		ID:       "my_website_1",
+		Name:     "My Website",
+		FloorCPM: 0.2,
+		Width:    466,
+		Height:   214,
 	}
 )
 
@@ -75,7 +76,8 @@ func TestMain(t *testing.T) {
 			if have, want := wonCount, 1; have != want {
 				t.Errorf("have %v, want %v", have, want)
 			}
-			if have, want := wonCMP, 0.43; have != want {
+			// Fallback to floor
+			if have, want := wonCMP, 0.2; have != want {
 				t.Errorf("have %v, want %v", have, want)
 			}
 		}

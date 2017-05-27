@@ -70,13 +70,16 @@ func (d *DSP) Bid(ctx context.Context, a *Auction) ([]Bid, error) {
 	if err := json.NewDecoder(resp.Body).Decode(&bid); err != nil {
 		return nil, err
 	}
-	b := bid.Seatbids[0].Bids[0] // TODO
-	return []Bid{
-		{
-			SSPID:           d.ID,
-			PriceCPM:        b.Price,
-			AdMarkup:        b.AdMarkup,
-			NotificationURL: b.NotificationURL,
-		},
-	}, nil
+	var bids []Bid
+	for _, s := range bid.Seatbids {
+		for _, b := range s.Bids {
+			bids = append(bids, Bid{
+				SSPID:           d.ID,
+				PriceCPM:        b.Price,
+				AdMarkup:        b.AdMarkup,
+				NotificationURL: b.NotificationURL,
+			})
+		}
+	}
+	return bids, nil
 }
