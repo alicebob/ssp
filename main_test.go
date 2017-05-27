@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/http/cookiejar"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -44,6 +45,11 @@ var (
 )
 
 func TestMain(t *testing.T) {
+	jar, _ := cookiejar.New(nil)
+	cl := &http.Client{
+		Jar: jar,
+	}
+
 	dsp1, s1 := ssp.RunDSP("dsp1", "My First DSP")
 	defer s1.Close()
 	dsp2, s2 := ssp.RunDSP("dsp2", "My Second DSP", camp1, camp2)
@@ -54,21 +60,21 @@ func TestMain(t *testing.T) {
 	defer s.Close()
 
 	{
-		r := getok(t, s, 200, "/")
+		r := getok(t, s, cl, 200, "/")
 		if want := "My Website"; !strings.Contains(r, want) {
 			t.Errorf("not found: %q", want)
 		}
 	}
 
 	{
-		r := getok(t, s, 200, "/p/my_website_1/code.html")
+		r := getok(t, s, cl, 200, "/p/my_website_1/code.html")
 		if want := "<iframe"; !strings.Contains(r, want) {
 			t.Errorf("not found: %q", want)
 		}
 	}
 
 	{
-		r := getok(t, s, 200, "/p/my_website_1/iframe.html")
+		r := getok(t, s, cl, 200, "/p/my_website_1/iframe.html")
 		if have, want := r, "debugger.png"; !strings.Contains(have, want) {
 			t.Errorf("not found: %q", want)
 		}
@@ -88,11 +94,16 @@ func TestMain(t *testing.T) {
 		}
 	}
 
-	getok(t, s, 404, "/p/my_website_1/foo.html")
-	getok(t, s, 404, "/p/foo/code.html")
+	getok(t, s, cl, 404, "/p/my_website_1/foo.html")
+	getok(t, s, cl, 404, "/p/foo/code.html")
 }
 
 func TestRTB(t *testing.T) {
+	jar, _ := cookiejar.New(nil)
+	cl := &http.Client{
+		Jar: jar,
+	}
+
 	var lastReq openrtb.BidRequest
 	r := httprouter.New()
 	r.POST("/rtb", func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -115,7 +126,7 @@ func TestRTB(t *testing.T) {
 	s := httptest.NewServer(mux(d, []ssp.Placement{pl1}))
 	defer s.Close()
 
-	getok(t, s, 200, "/p/my_website_1/iframe.html")
+	getok(t, s, cl, 200, "/p/my_website_1/iframe.html")
 	if have, want := len(lastReq.Impressions), 1; have != want {
 		t.Fatalf("have %d, want %d", have, want)
 	}
@@ -125,11 +136,24 @@ func TestRTB(t *testing.T) {
 	if have, want := lastReq.Device.IP, "127.0.0.1"; have != want {
 		t.Fatalf("have %s, want %s", have, want)
 	}
+	userID := lastReq.User.ID
+	if have := userID; have == "" {
+		t.Fatalf("empty value")
+	}
+
+	// userid should be stable
+	getok(t, s, cl, 200, "/p/my_website_1/iframe.html")
+	if have, want := lastReq.User.ID, userID; have != want {
+		t.Fatalf("have %s, want %s", have, want)
+	}
 }
 
-func getok(t *testing.T, s *httptest.Server, status int, path string) string {
-	url := s.URL + path
-	res, err := http.Get(url)
+func getok(t *testing.T, s *httptest.Server, cl *http.Client, status int, path string) string {
+	req, err := http.NewRequest("GET", s.URL+path, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := cl.Do(req)
 	if err != nil {
 		t.Fatal(err)
 	}

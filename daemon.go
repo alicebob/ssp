@@ -11,7 +11,8 @@ import (
 )
 
 const (
-	timeout = 100 * time.Millisecond
+	timeout    = 100 * time.Millisecond
+	cookieName = "uid"
 )
 
 type Daemon struct {
@@ -27,12 +28,13 @@ func NewDaemon(base string, dsps []ssp.DSP) *Daemon {
 }
 
 // RunAuction for a placement. Can take up to $timeout to run.
-func (d *Daemon) RunAuction(pl *ssp.Placement, r *http.Request) *ssp.Auction {
+func (d *Daemon) RunAuction(pl *ssp.Placement, r *http.Request, userID string) *ssp.Auction {
 	a := ssp.NewAuction()
 	a.UserAgent = r.UserAgent()
 	if addr := r.RemoteAddr; addr != "" {
 		a.IP, _, _ = net.SplitHostPort(addr)
 	}
+	a.UserID = userID
 	a.PlacementID = pl.ID
 	a.FloorCPM = pl.FloorCPM
 	a.Width = pl.Width
@@ -54,4 +56,11 @@ func (d *Daemon) RunAuction(pl *ssp.Placement, r *http.Request) *ssp.Auction {
 	a.AdMarkup = won.AdMarkup
 	a.Won()
 	return a
+}
+
+func getUserID(r *http.Request) string {
+	if c, err := r.Cookie(cookieName); err == nil && c != nil {
+		return c.Value
+	}
+	return ssp.RandomID(10)
 }

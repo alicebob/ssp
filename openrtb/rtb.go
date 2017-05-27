@@ -6,6 +6,7 @@ type BidRequest struct {
 	ID          string       `json:"id"`
 	Impressions []Impression `json:"imp,omitempty"`
 	Device      Device       `json:"device"`
+	User        User         `json:"user"`
 }
 
 type Impression struct {
@@ -23,6 +24,10 @@ type Banner struct {
 type Device struct {
 	UserAgent string `json:"ua,omitempty"`
 	IP        string `json:"ip,omitempty"`
+}
+
+type User struct {
+	ID string `json:"id,omitempty"`
 }
 
 type BidResponse struct {

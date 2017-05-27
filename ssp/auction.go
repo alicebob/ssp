@@ -14,6 +14,7 @@ const (
 type Auction struct {
 	ID              string
 	PlacementID     string
+	UserID          string
 	FloorCPM        float64
 	Width, Height   int
 	UserAgent       string
@@ -25,7 +26,7 @@ type Auction struct {
 
 func NewAuction() *Auction {
 	return &Auction{
-		ID: "123", // TODO
+		ID: RandomID(42),
 	}
 }
 
