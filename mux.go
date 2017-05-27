@@ -44,7 +44,7 @@ func makeCode(base string, pl ssp.Placement) httprouter.Handle {
 
 func makeIframe(d *Daemon, pl ssp.Placement) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		auc := d.RunAuction(&pl)
+		auc := d.RunAuction(&pl, r)
 		if auc == nil {
 			log.Printf("auction: no result")
 			w.Header().Set("Content-Type", "text/html")

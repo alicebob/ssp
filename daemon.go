@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"log"
+	"net"
+	"net/http"
 	"time"
 
 	"github.com/alicebob/ssp/ssp"
@@ -25,10 +27,12 @@ func NewDaemon(base string, dsps []ssp.DSP) *Daemon {
 }
 
 // RunAuction for a placement. Can take up to $timeout to run.
-func (d *Daemon) RunAuction(pl *ssp.Placement) *ssp.Auction {
+func (d *Daemon) RunAuction(pl *ssp.Placement, r *http.Request) *ssp.Auction {
 	a := ssp.NewAuction()
-	a.UserAgent = "chromium 4.5.6"
-	a.IP = "5.6.7.8"
+	a.UserAgent = r.Header.Get("User-Agent")
+	if addr := r.RemoteAddr; addr != "" {
+		a.IP, _, _ = net.SplitHostPort(addr)
+	}
 	a.PlacementID = pl.ID
 	a.FloorCPM = pl.FloorCPM
 	a.Width = pl.Width
