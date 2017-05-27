@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"sync"
 
+	"github.com/alicebob/ssp/openrtb"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -57,7 +58,7 @@ func (dsp *DSP) Mux() *httprouter.Router {
 func (dsp *DSP) rtbHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		log.Printf("RTB request")
-		var req RTBBidRequest
+		var req openrtb.BidRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			log.Printf("req: %s", err)
 			http.Error(w, http.StatusText(400), 400)
@@ -65,7 +66,7 @@ func (dsp *DSP) rtbHandler() httprouter.Handle {
 		}
 
 		// log.Printf("RTB request: %#v", req)
-		var bids []RTBBid
+		var bids []openrtb.Bid
 		for _, imp := range req.Impressions {
 			bids = append(bids, dsp.makeBid(imp)...)
 		}
@@ -75,9 +76,9 @@ func (dsp *DSP) rtbHandler() httprouter.Handle {
 			fmt.Fprintf(w, "{}")
 			return
 		}
-		res := RTBBidResponse{
+		res := openrtb.BidResponse{
 			ID: req.ID,
-			Seatbids: []RTBSeatbid{
+			Seatbids: []openrtb.Seatbid{
 				{
 					Bids: bids,
 				},
@@ -97,8 +98,8 @@ func (dsp *DSP) rtbHandler() httprouter.Handle {
 }
 
 // place a bid on every campaign which matches.
-func (dsp *DSP) makeBid(imp RTBImpression) []RTBBid {
-	var bids []RTBBid
+func (dsp *DSP) makeBid(imp openrtb.Impression) []openrtb.Bid {
+	var bids []openrtb.Bid
 	for _, c := range dsp.campaigns {
 		switch {
 		case imp.Banner != nil:
@@ -106,7 +107,7 @@ func (dsp *DSP) makeBid(imp RTBImpression) []RTBBid {
 			if b.Width == c.Width && b.Height == c.Height {
 				bids = append(
 					bids,
-					RTBBid{
+					openrtb.Bid{
 						ImpressionID: imp.ID,
 						Price:        c.BidCPM,
 						AdMarkup: fmt.Sprintf(

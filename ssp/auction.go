@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+const (
+	Currency = "USD"
+)
+
 type Auction struct {
 	ID              string
 	PlacementID     string

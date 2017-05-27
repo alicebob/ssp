@@ -7,6 +7,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+
+	"github.com/alicebob/ssp/openrtb"
 )
 
 var (
@@ -20,12 +22,14 @@ type DSP struct {
 }
 
 func (d *DSP) Bid(ctx context.Context, a *Auction) ([]Bid, error) {
-	rtb := RTBBidRequest{
+	rtb := openrtb.BidRequest{
 		ID: a.ID,
-		Impressions: []RTBImpression{
+		Impressions: []openrtb.Impression{
 			{
-				ID: "1",
-				Banner: &RTBBanner{
+				ID:          "1",
+				Bidfloor:    a.FloorCPM,
+				BidfloorCur: Currency,
+				Banner: &openrtb.Banner{
 					Width:  a.Width,
 					Height: a.Height,
 				},
@@ -66,7 +70,7 @@ func (d *DSP) Bid(ctx context.Context, a *Auction) ([]Bid, error) {
 	default:
 		return nil, fmt.Errorf("unexpected HTTP status code: %d %s", s, resp.Status)
 	}
-	var bid RTBBidResponse
+	var bid openrtb.BidResponse
 	if err := json.NewDecoder(resp.Body).Decode(&bid); err != nil {
 		return nil, err
 	}
