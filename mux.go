@@ -16,6 +16,7 @@ func mux(d *Daemon, pls []ssp.Placement) *httprouter.Router {
 	r.GET("/", makeList(pls))
 	for _, pl := range pls {
 		base := "/p/" + pl.ID + "/"
+		r.GET(base, makeExample(d.BaseURL+base, pl))
 		r.GET(base+"code.html", makeCode(d.BaseURL+base, pl))
 		r.GET(base+"iframe.html", makeIframe(d, pl))
 	}
@@ -26,6 +27,26 @@ func makeList(pls []ssp.Placement) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		w.Header().Set("Content-Type", "text/html")
 		runTemplate(w, listTemplate, pls)
+	}
+}
+
+func makeExample(base string, pl ssp.Placement) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		b, err := pl.Code(base)
+		if err != nil {
+			log.Printf("code: %s", err)
+			http.Error(w, http.StatusText(500), 500)
+			return
+		}
+		args := map[string]interface{}{
+			"id":     pl.ID,
+			"name":   pl.Name,
+			"width":  pl.Width,
+			"height": pl.Height,
+			"code":   template.HTML(string(b)),
+		}
+		w.Header().Set("Content-Type", "text/html")
+		runTemplate(w, exampleTemplate, args)
 	}
 }
 
@@ -85,14 +106,39 @@ func runTemplate(w http.ResponseWriter, t *template.Template, args interface{}) 
 	}
 }
 
-var listTemplate = template.Must(template.New("list").Parse(`
+var (
+	listTemplate = template.Must(template.New("list").Parse(`
 <html>
 <title>Placement list</title>
 <body>
 Available placements:<br />
+<br />
 {{range .}}
-	{{.Name}}<br />
-	- <a href="/p/{{.ID}}/code.html">Embed code</a><br />
-	- <a href="/p/{{.ID}}/iframe.html">Iframe</a><br />
+	<a href="/p/{{ .ID }}/">{{.Name}}</a><br />
 {{end}}
 `))
+
+	exampleTemplate = template.Must(template.New("list").Parse(`
+<html>
+<title>{{ .name }}</title>
+<body>
+<b>{{ .name}}</b><br />
+{{ .width }}x{{ .height }}<br />
+<br />
+<br />
+
+Embed code:<br />
+<code style="background-color: #eee">
+	{{ .code | html }}
+</code>
+<br />
+<a href="./code.html">raw</a>
+<br />
+<br />
+<br />
+
+<div style="width:{{.width}}px; height:{{.height}}px; border: solid 1px gray">
+{{ .code }}
+</div>
+`))
+)
