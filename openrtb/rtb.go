@@ -14,6 +14,7 @@ type Impression struct {
 	Banner      *Banner `json:"banner,omitempty"`
 	Bidfloor    float64 `json:"bidfloor,omitempty"`
 	BidfloorCur string  `json:"bidfloorcur,omitempty"`
+	Secure      int     `json:"secure,omitempty"`
 }
 
 type Banner struct {

@@ -33,6 +33,7 @@ func (d *DSP) Bid(ctx context.Context, a *Auction) ([]Bid, error) {
 					Width:  a.Width,
 					Height: a.Height,
 				},
+				Secure: 1,
 			},
 		},
 		Device: openrtb.Device{
