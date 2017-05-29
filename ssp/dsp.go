@@ -16,9 +16,9 @@ var (
 )
 
 type DSP struct {
-	ID     string
-	Name   string
-	BidURL string
+	ID     string `json:"id"`
+	Name   string `json:"name"`
+	BidURL string `json:"bid_url"`
 }
 
 func (d *DSP) Bid(ctx context.Context, a *Auction) ([]Bid, error) {

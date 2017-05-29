@@ -1,0 +1,37 @@
+{
+	"dsps": [
+		{
+			"id":     "dsp1",
+			"name":   "Test 1",
+			"bid_url": "http://localhost:9990/rtb"
+		},
+		{
+			"id":     "dsp2",
+			"name":   "Test 2 - offline",
+			"bid_url": "http://localhost:9999/..."
+		}
+	],
+	"placements": [
+		{
+			"id":       "example32050",
+			"name":     "Example 320x50",
+			"floor_cpm": 0.1,
+			"width":    320,
+			"height":   50
+		},
+		{
+			"id":       "example300250",
+			"name":     "Example 300x250",
+			"floor_cpm": 0.1,
+			"width":    300,
+			"height":   250
+		},
+		{
+			"id":       "example72890",
+			"name":     "Example 728x90",
+			"floor_cpm": 0.1,
+			"width":    728,
+			"height":   90
+		}
+	]
+}

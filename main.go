@@ -1,7 +1,10 @@
 package main
 
 import (
+	"encoding/json"
+	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -12,46 +15,31 @@ const (
 	listen = "localhost:9998"
 )
 
+type Config struct {
+	DSPs       []ssp.DSP       `json:"dsps"`
+	Placements []ssp.Placement `json:"placements"`
+}
+
 var (
-	dsps = []ssp.DSP{
-		{
-			ID:     "dsp1",
-			Name:   "Test 1",
-			BidURL: "http://localhost:9990/rtb",
-		},
-		{
-			ID:     "dsp2",
-			Name:   "Test 2 - offline",
-			BidURL: "http://localhost:9999/...",
-		},
-	}
-	placements = []ssp.Placement{
-		ssp.Placement{
-			ID:       "my_website_1",
-			Name:     "My Website",
-			FloorCPM: 0.1,
-			Width:    520,
-			Height:   100,
-		},
-		ssp.Placement{
-			ID:       "my_website_2",
-			Name:     "My Website 2",
-			FloorCPM: 0.1,
-			Width:    300,
-			Height:   330,
-		},
-		ssp.Placement{
-			ID:       "my_website_3",
-			Name:     "My Website 3",
-			FloorCPM: 0.1,
-			Width:    466,
-			Height:   214,
-		},
-	}
+	config = flag.String("config", "./ssp.json", "config file")
 )
 
 func main() {
-	s := NewDaemon(fmt.Sprintf("http://%s", listen), dsps)
+	flag.Parse()
+
+	f, err := ioutil.ReadFile(*config)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var c Config
+	if err := json.Unmarshal(f, &c); err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("configured DSPs:")
+	for _, d := range c.DSPs {
+		log.Printf(" - %s", d.Name)
+	}
+	s := NewDaemon(fmt.Sprintf("http://%s", listen), c.DSPs)
 	log.Printf("listening on %s...", listen)
-	log.Fatal(http.ListenAndServe(listen, mux(s, placements)))
+	log.Fatal(http.ListenAndServe(listen, mux(s, c.Placements)))
 }

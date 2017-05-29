@@ -7,11 +7,11 @@ import (
 
 // basic banner
 type Placement struct {
-	ID       string
-	Name     string
-	FloorCPM float64
-	Width    int
-	Height   int
+	ID       string  `json:"id"`
+	Name     string  `json:"name"`
+	FloorCPM float64 `json:"floor_cpm"`
+	Width    int     `json:"width"`
+	Height   int     `json:"height"`
 }
 
 func (p Placement) Code(base string) (string, error) {
