@@ -89,7 +89,7 @@ var listTemplate = template.Must(template.New("list").Parse(`
 <html>
 <title>Placement list</title>
 <body>
-Available placements:
+Available placements:<br />
 {{range .}}
 	{{.Name}}<br />
 	- <a href="/p/{{.ID}}/code.html">Embed code</a><br />

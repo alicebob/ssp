@@ -27,6 +27,13 @@
 			"height":   250
 		},
 		{
+			"id":       "example320480",
+			"name":     "Example 320x480",
+			"floor_cpm": 0.1,
+			"width":    320,
+			"height":   480
+		},
+		{
 			"id":       "example72890",
 			"name":     "Example 728x90",
 			"floor_cpm": 0.1,
