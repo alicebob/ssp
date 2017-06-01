@@ -21,6 +21,7 @@ import (
 var (
 	camp1 = dsplib.Campaign{
 		ID:       "camp1",
+		Type:     "banner",
 		Width:    466,
 		Height:   214,
 		BidCPM:   0.43,
@@ -29,6 +30,7 @@ var (
 	}
 	camp2 = dsplib.Campaign{
 		ID:       "camp2",
+		Type:     "banner",
 		Width:    300,
 		Height:   330,
 		BidCPM:   0.12,
@@ -37,6 +39,7 @@ var (
 	}
 	pl1 = ssp.Placement{
 		ID:       "my_website_1",
+		Type:     ssp.Banner,
 		Name:     "My Website",
 		FloorCPM: 0.2,
 		Width:    466,

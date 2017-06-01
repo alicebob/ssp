@@ -103,7 +103,7 @@ func (dsp *DSP) makeBid(imp openrtb.Impression) []openrtb.Bid {
 	var bids []openrtb.Bid
 	for _, c := range dsp.campaigns {
 		switch {
-		case imp.Banner != nil:
+		case imp.Banner != nil && (c.Type == "banner" || c.Type == ""):
 			b := imp.Banner
 			if b.Width == c.Width && b.Height == c.Height {
 				bids = append(
@@ -122,10 +122,25 @@ func (dsp *DSP) makeBid(imp openrtb.Impression) []openrtb.Bid {
 					},
 				)
 			}
+		case imp.Video != nil && c.Type == "video":
+			// TODO: fuzzier dimension matching
+			v := imp.Video
+			if v.Width == c.Width && v.Height == c.Height {
+				bids = append(
+					bids,
+					openrtb.Bid{
+						ImpressionID:    imp.ID,
+						Price:           c.BidCPM,
+						AdMarkup:        vast30(c),
+						NotificationURL: dsp.winURL(),
+					},
+				)
+			}
 		}
 	}
 	return bids
 }
+
 func (dsp *DSP) winHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		pr := r.FormValue("p")
@@ -157,4 +172,15 @@ func (dsp *DSP) Won() (int, float64) {
 	dsp.mu.Lock()
 	defer dsp.mu.Unlock()
 	return dsp.wonCount, dsp.wonCPM
+}
+
+func vast30(c Campaign) string {
+	return fmt.Sprintf(`<VAST version="3.0"><Ad id="%s"><InLine><AdSystem>My First SSP</AdSystem><AdTitle>%s</AdTitle><Creatives><Creative><Linear><Duration>00:01:00.000</Duration><MediaFiles><MediaFile delivery="progressive" width="%d" height="%d" type="video/mp4" bitrate="1000"><![CDATA[%s]]></MediaFile></MediaFiles><VideoClicks><ClickThrough>%s</ClickThrough></VideoClicks></Linear></Creative></Creatives></InLine></Ad></VAST>`,
+		c.ID,
+		c.ID,
+		c.Width,
+		c.Height,
+		c.VideoURL,
+		c.ClickURL,
+	)
 }

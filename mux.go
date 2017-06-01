@@ -19,7 +19,9 @@ func mux(d *Daemon, pls []ssp.Placement) *httprouter.Router {
 		r.GET(base, makeExample(d.BaseURL+base, pl))
 		r.GET(base+"code.html", makeCode(d.BaseURL+base, pl))
 		r.GET(base+"iframe.html", makeIframe(d, pl))
+		r.GET(base+"vast.xml", makeVast(d, pl))
 	}
+	r.ServeFiles("/static/*filepath", FS(false))
 	return r
 }
 
@@ -65,16 +67,7 @@ func makeCode(base string, pl ssp.Placement) httprouter.Handle {
 
 func makeIframe(d *Daemon, pl ssp.Placement) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		userID := getUserID(r)
-		http.SetCookie(w, &http.Cookie{
-			Name:     cookieName,
-			Value:    userID,
-			Path:     "/",
-			MaxAge:   100 * 24 * 60 * 60,
-			HttpOnly: true,
-		})
-
-		auc := d.RunAuction(&pl, r, userID)
+		auc := d.RunAuction(&pl, r, userID(w, r))
 		if auc == nil {
 			log.Printf("auction: no result")
 			w.Header().Set("Content-Type", "text/html")
@@ -89,6 +82,20 @@ func makeIframe(d *Daemon, pl ssp.Placement) httprouter.Handle {
 		}
 		w.Header().Set("Content-Type", "text/html")
 		w.Write([]byte(b))
+	}
+}
+
+func makeVast(d *Daemon, pl ssp.Placement) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		auc := d.RunAuction(&pl, r, userID(w, r))
+		if auc == nil {
+			log.Printf("auction: no result")
+			w.Header().Set("Content-Type", "text/html")
+			fmt.Fprintf(w, "no bid")
+			return
+		}
+		w.Header().Set("Content-Type", "application/xml")
+		w.Write([]byte(auc.AdMarkup))
 	}
 }
 
@@ -128,9 +135,9 @@ Available placements:<br />
 <br />
 
 Embed code:<br />
-<code style="background-color: #eee">
+<pre style="background-color: #eee">
 	{{ .code | html }}
-</code>
+</pre>
 <br />
 <a href="./code.html">raw</a>
 <br />

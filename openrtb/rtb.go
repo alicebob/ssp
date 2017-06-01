@@ -12,6 +12,7 @@ type BidRequest struct {
 type Impression struct {
 	ID          string  `json:"id,omitempty"`
 	Banner      *Banner `json:"banner,omitempty"`
+	Video       *Video  `json:"video,omitempty"`
 	Bidfloor    float64 `json:"bidfloor,omitempty"`
 	BidfloorCur string  `json:"bidfloorcur,omitempty"`
 	Secure      int     `json:"secure,omitempty"`
@@ -20,6 +21,12 @@ type Impression struct {
 type Banner struct {
 	Width  int `json:"w,omitempty"`
 	Height int `json:"h,omitempty"`
+}
+
+type Video struct {
+	Width  int      `json:"w,omitempty"`
+	Height int      `json:"h,omitempty"`
+	Mimes  []string `json:"mimes,omitempty"`
 }
 
 type Device struct {

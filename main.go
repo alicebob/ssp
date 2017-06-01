@@ -18,7 +18,7 @@ type Config struct {
 var (
 	config = flag.String("config", "./ssp.json", "config file")
 	listen = flag.String("listen", ":9998", "listen")
-	public = flag.String("public", "http://localhost:9998/", "public")
+	public = flag.String("public", "http://localhost:9998", "public")
 )
 
 func main() {

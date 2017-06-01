@@ -22,19 +22,31 @@ type DSP struct {
 }
 
 func (d *DSP) Bid(ctx context.Context, a *Auction) ([]Bid, error) {
+	imp := openrtb.Impression{
+		ID:          "1",
+		Bidfloor:    a.FloorCPM,
+		BidfloorCur: Currency,
+		Secure:      1,
+	}
+	switch a.PlacementType {
+	case Banner:
+		imp.Banner = &openrtb.Banner{
+			Width:  a.Width,
+			Height: a.Height,
+		}
+	case Video:
+		imp.Video = &openrtb.Video{
+			Width:  a.Width,
+			Height: a.Height,
+			Mimes:  []string{"video/mp4"},
+		}
+	default:
+		return nil, fmt.Errorf("unsupported auction type: %s", a.PlacementType)
+	}
 	rtb := openrtb.BidRequest{
 		ID: a.ID,
 		Impressions: []openrtb.Impression{
-			{
-				ID:          "1",
-				Bidfloor:    a.FloorCPM,
-				BidfloorCur: Currency,
-				Banner: &openrtb.Banner{
-					Width:  a.Width,
-					Height: a.Height,
-				},
-				Secure: 1,
-			},
+			imp,
 		},
 		Device: openrtb.Device{
 			UserAgent: a.UserAgent,

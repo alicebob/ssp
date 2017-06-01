@@ -14,6 +14,7 @@ const (
 type Auction struct {
 	ID              string
 	PlacementID     string
+	PlacementType   Type
 	UserID          string
 	FloorCPM        float64
 	Width, Height   int

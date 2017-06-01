@@ -7,13 +7,14 @@
 		},
 		{
 			"id":     "dsp2",
-			"name":   "Test 2 - offline",
+			"name":   "Test 2",
 			"bid_url": "http://localhost:9999/..."
 		}
 	],
 	"placements": [
 		{
 			"id":       "example32050",
+           "type":     "banner",
 			"name":     "Example 320x50",
 			"floor_cpm": 0.1,
 			"width":    320,
@@ -21,6 +22,7 @@
 		},
 		{
 			"id":       "example300250",
+           "type":     "banner",
 			"name":     "Example 300x250",
 			"floor_cpm": 0.1,
 			"width":    300,
@@ -28,6 +30,7 @@
 		},
 		{
 			"id":       "example320480",
+           "type":     "banner",
 			"name":     "Example 320x480",
 			"floor_cpm": 0.1,
 			"width":    320,
@@ -35,10 +38,19 @@
 		},
 		{
 			"id":       "example72890",
+           "type":     "banner",
 			"name":     "Example 728x90",
 			"floor_cpm": 0.1,
 			"width":    728,
 			"height":   90
+		},
+		{
+			"id":       "video400400",
+           "type":     "video",
+			"name":     "Video 400x400",
+			"floor_cpm": 0.1,
+			"width":    400,
+			"height":   400
 		}
 	]
 }

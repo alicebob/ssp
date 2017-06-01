@@ -36,6 +36,7 @@ func (d *Daemon) RunAuction(pl *ssp.Placement, r *http.Request, userID string) *
 	}
 	a.UserID = userID
 	a.PlacementID = pl.ID
+	a.PlacementType = pl.Type
 	a.FloorCPM = pl.FloorCPM
 	a.Width = pl.Width
 	a.Height = pl.Height
@@ -63,4 +64,16 @@ func getUserID(r *http.Request) string {
 		return c.Value
 	}
 	return ssp.RandomID(10)
+}
+
+func userID(w http.ResponseWriter, r *http.Request) string {
+	userID := getUserID(r)
+	http.SetCookie(w, &http.Cookie{
+		Name:     cookieName,
+		Value:    userID,
+		Path:     "/",
+		MaxAge:   100 * 24 * 60 * 60,
+		HttpOnly: true,
+	})
+	return userID
 }

@@ -10,8 +10,9 @@ import (
 type Bid struct {
 	SSPID           string
 	PriceCPM        float64
-	AdMarkup        string
 	NotificationURL string
+	Type            Type
+	AdMarkup        string // VAST also goes here
 }
 
 func RunAuction(ctx context.Context, dsps []DSP, a *Auction) (*Bid, error) {
