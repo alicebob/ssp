@@ -40,7 +40,7 @@ func (p Placement) Iframe(au *Auction) (string, error) {
 
 var (
 	plainCode = template.Must(template.New("code").Parse(`
-<iframe src="{{.Base}}iframe.html" style="border: 0; width: {{.Placement.Width}}px; height: {{.Placement.Height}}px"></iframe>
+<iframe src="{{.Base}}iframe.html" allow-device-sensors style="border: 0; width: {{.Placement.Width}}px; height: {{.Placement.Height}}px"></iframe>
 `))
 
 	plainIframe = template.Must(template.New("embed").Parse(`
