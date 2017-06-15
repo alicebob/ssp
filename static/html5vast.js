@@ -13,8 +13,6 @@
 		//Default options
 		var html5vast_options = {
 			'media_type' : 'video/mp4',
-			'media_bitrate_min' : 200,
-			'media_bitrate_max' : 1200,
 			'ad_caption': 'Advertisement'					
 		};
 		for(var key in options){
@@ -123,9 +121,7 @@
 						
 		for(var i=0;i<media_files.length;i++){
 				if(media_files[i].getAttribute('type')==options.media_type){
-					if((media_files[i].getAttribute('bitrate')>options.media_bitrate_min) && (media_files[i].getAttribute('bitrate')<options.media_bitrate_max)){
 						obj_vast.media_file=media_files[i].childNodes[0].nodeValue;
-					}
 				}
 		}
 		

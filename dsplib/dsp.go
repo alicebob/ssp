@@ -175,7 +175,7 @@ func (dsp *DSP) Won() (int, float64) {
 }
 
 func vast30(c Campaign) string {
-	return fmt.Sprintf(`<VAST version="3.0"><Ad id="%s"><InLine><AdSystem>My First SSP</AdSystem><AdTitle>%s</AdTitle><Creatives><Creative><Linear><Duration>00:01:00.000</Duration><MediaFiles><MediaFile delivery="progressive" width="%d" height="%d" type="video/mp4" bitrate="1000"><![CDATA[%s]]></MediaFile></MediaFiles><VideoClicks><ClickThrough>%s</ClickThrough></VideoClicks></Linear></Creative></Creatives></InLine></Ad></VAST>`,
+	return fmt.Sprintf(`<VAST version="3.0"><Ad id="%s"><InLine><AdSystem>My First SSP</AdSystem><AdTitle>%s</AdTitle><Creatives><Creative><Linear><Duration>00:01:00.000</Duration><MediaFiles><MediaFile delivery="progressive" width="%d" height="%d" type="video/mp4"><![CDATA[%s]]></MediaFile></MediaFiles><VideoClicks><ClickThrough>%s</ClickThrough></VideoClicks></Linear></Creative></Creatives></InLine></Ad></VAST>`,
 		c.ID,
 		c.ID,
 		c.Width,
