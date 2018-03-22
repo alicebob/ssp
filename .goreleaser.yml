@@ -1,0 +1,12 @@
+builds:
+  - binary: ssp
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+archive:
+    files:
+        - LICENSE
+        - ssp.json
+    wrap_in_directory: true
