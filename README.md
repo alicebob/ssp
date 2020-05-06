@@ -1,3 +1,6 @@
+**Project status**: Please note that this project works, but is otherwise left as-is. I won't maintain this, and I can't provide any support.
+
+
 # Minimal SSP
 
 A very basic openrtb2.3 SSP used to tests RTB campaigns. It has a few placements
@@ -10,7 +13,3 @@ Basic support for VAST3 video.
 
 It's a proper second-price auction, and if there is only a single bid it'll
 charge the bid floor for the placement.
-
-# TODO
-
- - Native
